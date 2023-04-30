@@ -6,6 +6,7 @@ The power of @effect/schema and classes combined!
 
 ```ts
 import * as S from "@effect/schema/Schema"
+import { SchemaClass, SchemaClassExtends } from "effect-schema-class"
 
 class Person extends SchemaClass({
   name: S.string,
