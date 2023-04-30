@@ -24,10 +24,13 @@ class PersonWithAge extends SchemaClassExtends(Person, {
   }
 }
 
-const person = new Person({ name: "Tim" })
+const person = new Person({ name: "Tim" }) // constructors validate the props
 const parsePerson = S.parse(Person.schema())
 
 assert(person instanceof Data.Class) // extends Data for equality checks
+
+// clone a instance and validate the props
+const john = person.copyWith({ name: "John" })
 ```
 
 ## License
