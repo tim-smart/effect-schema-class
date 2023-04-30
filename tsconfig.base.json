@@ -36,7 +36,6 @@
     "module": "ES6",
     "incremental": true,
     "removeComments": false,
-    "tsPlusConfig": "./tsplus.config.json",
     "paths": {
       "effect-schema-class": ["./src/index.ts"],
       "effect-schema-class/*": ["./src/*.ts"]
