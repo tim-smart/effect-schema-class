@@ -9,6 +9,7 @@ import * as S from "@effect/schema/Schema"
 import { SchemaClass, SchemaClassExtends } from "effect-schema-class"
 
 class Person extends SchemaClass({
+  id: S.number,
   name: S.string,
 }) {
   get upperName() {
@@ -24,13 +25,15 @@ class PersonWithAge extends SchemaClassExtends(Person, {
   }
 }
 
-const person = new Person({ name: "Tim" }) // constructors validate the props
+const person = new Person({ id: 1, name: "Tim" }) // constructors validate the props
 const parsePerson = S.parse(Person.schema())
 
 assert(person instanceof Data.Class) // extends Data for equality checks
 
 // clone a instance and validate the props
 const john = person.copyWith({ name: "John" })
+
+assert(john.id === 1)
 ```
 
 ## License
