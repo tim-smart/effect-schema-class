@@ -13,6 +13,7 @@ import type {
   ToOptionalKeys,
 } from "@effect/schema/Schema"
 import {
+  omit,
   extend,
   instanceOf,
   struct,
@@ -50,7 +51,7 @@ export interface SchemaClassExtends<C extends SchemaClass<any, any>, I, A> {
   new (props: A): A &
     CopyWith<A> &
     Data.Case &
-    Omit<InstanceType<C>, "copyWith">
+    Omit<InstanceType<C>, "copyWith" | keyof A>
 
   schema<T extends new (...args: any) => any>(
     this: T,
@@ -143,21 +144,29 @@ export const SchemaClassExtends = <
 ): SchemaClassExtends<
   Base,
   Spread<
-    (Base extends SchemaClass<infer I, infer _A> ? I : never) & {
+    (Base extends SchemaClass<infer I, infer _A>
+      ? Omit<I, keyof Fields>
+      : never) & {
       readonly [K in Exclude<keyof Fields, FromOptionalKeys<Fields>>]: From<
         Fields[K]
       >
     } & { readonly [K in FromOptionalKeys<Fields>]?: From<Fields[K]> }
   >,
   Spread<
-    (Base extends SchemaClass<infer _I, infer A> ? A : never) & {
+    (Base extends SchemaClass<infer _I, infer A>
+      ? Omit<A, keyof Fields>
+      : never) & {
       readonly [K in Exclude<keyof Fields, ToOptionalKeys<Fields>>]: To<
         Fields[K]
       >
     } & { readonly [K in ToOptionalKeys<Fields>]?: To<Fields[K]> }
   >
 > => {
-  const schema_ = pipe(base.structSchema(), extend(struct(fields)))
+  const schema_ = pipe(
+    base.structSchema(),
+    omit(...Object.keys(fields)),
+    extend(struct(fields)),
+  )
   const validater = validate(schema_)
 
   const fn = function (this: any, props: unknown) {
