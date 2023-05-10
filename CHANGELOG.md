@@ -1,5 +1,13 @@
 # effect-schema-class
 
+## 0.1.2
+
+### Patch Changes
+
+- [`38f3af2`](https://github.com/tim-smart/effect-schema-class/commit/38f3af2668f2a8136883539234cf8d669906e5cb) Thanks [@tim-smart](https://github.com/tim-smart)! - update deps
+
+- [`1b12b88`](https://github.com/tim-smart/effect-schema-class/commit/1b12b88adfe03914f980e9d46e6f919dc92114b0) Thanks [@tim-smart](https://github.com/tim-smart)! - omit extended fields
+
 ## 0.1.1
 
 ### Patch Changes
