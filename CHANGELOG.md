@@ -1,5 +1,11 @@
 # effect-schema-class
 
+## 0.1.3
+
+### Patch Changes
+
+- [`3d7f0b0`](https://github.com/tim-smart/effect-schema-class/commit/3d7f0b012a84311d236b3500bb685fea417d7cfb) Thanks [@tim-smart](https://github.com/tim-smart)! - fix version
+
 ## 0.1.2
 
 ### Patch Changes
