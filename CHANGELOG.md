@@ -1,5 +1,11 @@
 # effect-schema-class
 
+## 0.1.4
+
+### Patch Changes
+
+- [#6](https://github.com/tim-smart/effect-schema-class/pull/6) [`12cd550`](https://github.com/tim-smart/effect-schema-class/commit/12cd55008f30fb48169a9e6360990643a03933be) Thanks [@tim-smart](https://github.com/tim-smart)! - allow field over-riding
+
 ## 0.1.3
 
 ### Patch Changes
