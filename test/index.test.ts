@@ -1,6 +1,11 @@
 import * as Data from "@effect/data/Data"
 import * as S from "@effect/schema/Schema"
-import { SchemaClass, SchemaClassExtends } from "effect-schema-class"
+import {
+  SchemaClass,
+  SchemaClassExtends,
+  SchemaClassTransform,
+} from "effect-schema-class"
+import * as PR from "@effect/schema/ParseResult"
 
 class Person extends SchemaClass({
   id: S.number,
@@ -18,6 +23,21 @@ class PersonWithAge extends SchemaClassExtends(Person, {
     return this.age >= 18
   }
 }
+
+class PersonWithNick extends SchemaClassExtends(PersonWithAge, {
+  nick: S.string,
+}) {}
+
+class PersonWithTransform extends SchemaClassTransform(
+  Person,
+  { thing: S.struct({ id: S.number }) },
+  (input) =>
+    PR.success({
+      ...input,
+      thing: { id: 123 },
+    }),
+  PR.success,
+) {}
 
 describe("SchemaClass", () => {
   it("constructor", () => {
@@ -43,6 +63,17 @@ describe("SchemaClass", () => {
     assert(person.isAdult === true)
   })
 
+  it("extends extends", () => {
+    const person = S.parse(PersonWithNick.schema())({
+      id: 1,
+      name: "John",
+      age: 30,
+      nick: "Joe",
+    })
+    assert(person.age === 30)
+    assert(person.nick === "Joe")
+  })
+
   it("extends error", () => {
     expect(() =>
       S.parse(PersonWithAge.schema())({ id: 1, name: "John" }),
@@ -65,5 +96,16 @@ describe("SchemaClass", () => {
     const joe = person.copyWith({ name: "Joe" })
     assert(joe.id === 1)
     assert(joe.name === "Joe")
+  })
+
+  it("transform", () => {
+    const decode = S.decode(PersonWithTransform.schema())
+    const person = decode({
+      id: 1,
+      name: "John",
+    })
+    assert(person.id === 1)
+    assert(person.name === "John")
+    assert(person.thing.id === 123)
   })
 })

@@ -9,6 +9,9 @@ dependencies:
   '@effect/data':
     specifier: ^0.12.2
     version: 0.12.2
+  '@effect/io':
+    specifier: ^0.25.9
+    version: 0.25.9
   '@effect/schema':
     specifier: ^0.19.0
     version: 0.19.0
