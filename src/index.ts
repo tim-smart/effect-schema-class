@@ -139,8 +139,8 @@ export const SchemaClass = <
     return transform(
       schema_,
       instanceOf(this),
-      (_) => Object.setPrototypeOf(_, this.prototype),
-      (_) => Object.setPrototypeOf(_, Object.prototype),
+      (input) => Object.setPrototypeOf({ ...(input as any) }, this.prototype),
+      (input) => ({ ...(input as any) }),
     )
   }
   fn.fields = fields
