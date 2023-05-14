@@ -1,5 +1,11 @@
 # effect-schema-class
 
+## 0.2.4
+
+### Patch Changes
+
+- unsafe constructor
+
 ## 0.2.3
 
 ### Patch Changes
