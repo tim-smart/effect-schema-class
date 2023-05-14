@@ -132,4 +132,10 @@ describe("SchemaClass", () => {
     assert(person.name === "John")
     assert(isSome(person.thing) && person.thing.value.id === 123)
   })
+
+  it("unsafe", () => {
+    const person = Person.unsafe({ id: 1, name: "John" })
+    assert(person.id === 1)
+    assert(person.name === "John")
+  })
 })

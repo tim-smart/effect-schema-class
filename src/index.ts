@@ -37,6 +37,11 @@ export interface CopyWith<A> {
 export interface SchemaClass<I, A> {
   new (props: A): A & CopyWith<A> & Data.Case
 
+  unsafe<T extends new (...args: any) => any>(
+    this: T,
+    props: A,
+  ): InstanceType<T>
+
   schema<T extends new (...args: any) => any>(
     this: T,
   ): Schema<I, InstanceType<T>>
@@ -71,6 +76,11 @@ export interface SchemaClassExtends<C extends SchemaClass<any, any>, I, A> {
     Data.Case &
     Omit<InstanceType<C>, "copyWith" | keyof A>
 
+  unsafe<T extends new (...args: any) => any>(
+    this: T,
+    props: A,
+  ): InstanceType<T>
+
   schema<T extends new (...args: any) => any>(
     this: T,
   ): Schema<I, InstanceType<T>>
@@ -90,6 +100,11 @@ export interface SchemaClassTransform<C extends SchemaClass<any, any>, I, A> {
     Data.Case &
     Omit<InstanceType<C>, "copyWith" | keyof A>
 
+  unsafe<T extends new (...args: any) => any>(
+    this: T,
+    props: A,
+  ): InstanceType<T>
+
   schema<T extends new (...args: any) => any>(
     this: T,
   ): Schema<I, InstanceType<T>>
@@ -103,6 +118,9 @@ const make = <I, A>(schema_: Schema<I, A>, base: any) => {
     Object.assign(this, validater(props))
   }
   Object.setPrototypeOf(fn.prototype, base)
+  fn.unsafe = function unsafe(this: any, props: unknown) {
+    return Object.setPrototypeOf({ ...(props as any) }, this.prototype)
+  }
   fn.structSchema = function structSchema() {
     return schema_
   }
