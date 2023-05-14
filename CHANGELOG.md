@@ -1,5 +1,13 @@
 # effect-schema-class
 
+## 0.2.3
+
+### Patch Changes
+
+- [`ca51ba8`](https://github.com/tim-smart/effect-schema-class/commit/ca51ba8146ce9ab168de1325236b5d740f1fa93d) Thanks [@tim-smart](https://github.com/tim-smart)! - fix extends fields
+
+- [`ca51ba8`](https://github.com/tim-smart/effect-schema-class/commit/ca51ba8146ce9ab168de1325236b5d740f1fa93d) Thanks [@tim-smart](https://github.com/tim-smart)! - SchemaClassTransformFrom
+
 ## 0.2.2
 
 ### Patch Changes
