@@ -12,6 +12,8 @@ import type {
   ToOptionalKeys,
 } from "@effect/schema/Schema"
 import {
+  from,
+  to,
   instanceOf,
   struct,
   transform,
@@ -95,6 +97,33 @@ export interface SchemaClassTransform<C extends SchemaClass<any, any>, I, A> {
   structSchema(): Schema<I, A>
 }
 
+const make = <I, A>(schema_: Schema<I, A>, base: any) => {
+  const validater = validate(schema_)
+  const fn = function (this: any, props: unknown) {
+    Object.assign(this, validater(props))
+  }
+  Object.setPrototypeOf(fn.prototype, base)
+  fn.structSchema = function structSchema() {
+    return schema_
+  }
+  fn.schema = function schema(this: any) {
+    return transform(
+      schema_,
+      instanceOf(this),
+      (input) => Object.setPrototypeOf({ ...(input as any) }, this.prototype),
+      (input) => ({ ...(input as any) }),
+    )
+  }
+  fn.prototype.copyWith = function copyWith(this: any, props: any) {
+    return new (this.constructor as any)({
+      ...this,
+      ...props,
+    })
+  }
+
+  return fn as any
+}
+
 /**
  * @category constructor
  * @since 1.0.0
@@ -125,33 +154,10 @@ export const SchemaClass = <
     } & { readonly [K in ToOptionalKeys<Fields>]?: To<Fields[K]> }
   >
 > => {
-  const schema_ = struct(fields)
-  const validater = validate(schema_)
-
-  const fn = function (this: any, props: unknown) {
-    Object.assign(this, validater(props))
-  }
-  Object.setPrototypeOf(fn.prototype, Data.Class.prototype)
-  fn.structSchema = function structSchema() {
-    return schema_
-  }
-  fn.schema = function schema(this: any) {
-    return transform(
-      schema_,
-      instanceOf(this),
-      (input) => Object.setPrototypeOf({ ...(input as any) }, this.prototype),
-      (input) => ({ ...(input as any) }),
-    )
-  }
+  const schema = struct(fields)
+  const fn = make(schema, Data.Class.prototype)
   fn.fields = fields
-  fn.prototype.copyWith = function copyWith(this: any, props: any) {
-    return new (this.constructor as any)({
-      ...this,
-      ...props,
-    })
-  }
-
-  return fn as any
+  return fn
 }
 
 /**
@@ -187,36 +193,16 @@ export const SchemaClassExtends = <
     } & { readonly [K in ToOptionalKeys<Fields>]?: To<Fields[K]> }
   >
 > => {
-  const schema_ = struct({
+  const schema = struct({
     ...base.fields,
     ...fields,
   })
-  const validater = validate(schema_)
-
-  const fn = function (this: any, props: unknown) {
-    Object.assign(this, validater(props))
+  const fn = make(schema, base.prototype)
+  fn.fields = {
+    ...base.fields,
+    ...fields,
   }
-  Object.setPrototypeOf(fn.prototype, base.prototype)
-  fn.structSchema = function structSchema() {
-    return schema_
-  }
-  fn.schema = function schema(this: any) {
-    return transform(
-      schema_,
-      instanceOf(this),
-      (_) => Object.setPrototypeOf(_, this.prototype),
-      (_) => Object.setPrototypeOf(_, Object.prototype),
-    )
-  }
-  fn.fields = fields
-  fn.prototype.copyWith = function copyWith(this: any, props: any) {
-    return new (this.constructor as any)({
-      ...this,
-      ...props,
-    })
-  }
-
-  return fn as any
+  return fn
 }
 
 /**
@@ -260,8 +246,68 @@ export const SchemaClassTransform = <
     } & { readonly [K in ToOptionalKeys<Fields>]?: To<Fields[K]> }
   >
 > => {
-  const schema_ = transformResult(
+  const schema = transformResult(
     base.structSchema(),
+    to(
+      struct({
+        ...base.fields,
+        ...fields,
+      }),
+    ) as any,
+    decode,
+    encode,
+  )
+  const fn = make(schema, base.prototype)
+  fn.fields = {
+    ...base.fields,
+    ...fields,
+  }
+  return fn
+}
+
+/**
+ * @category constructor
+ * @since 1.0.0
+ */
+export const SchemaClassTransformFrom = <
+  Base extends SchemaClass<any, any>,
+  Fields extends Record<
+    PropertyKey,
+    | Schema<any>
+    | Schema<never>
+    | PropertySignature<any, boolean, any, boolean>
+    | PropertySignature<never, boolean, never, boolean>
+  >,
+>(
+  base: Base,
+  fields: Fields,
+  decode: (input: SchemaClass.From<Base>) => ParseResult<
+    Omit<SchemaClass.From<Base>, keyof Fields> & {
+      readonly [K in Exclude<keyof Fields, FromOptionalKeys<Fields>>]: From<
+        Fields[K]
+      >
+    } & { readonly [K in FromOptionalKeys<Fields>]?: From<Fields[K]> }
+  >,
+  encode: (
+    input: Omit<SchemaClass.From<Base>, keyof Fields> & {
+      readonly [K in Exclude<keyof Fields, FromOptionalKeys<Fields>>]: From<
+        Fields[K]
+      >
+    } & { readonly [K in FromOptionalKeys<Fields>]?: From<Fields[K]> },
+  ) => ParseResult<SchemaClass.From<Base>>,
+): SchemaClassTransform<
+  Base,
+  SchemaClass.From<Base>,
+  Spread<
+    Omit<SchemaClass.To<Base>, keyof Fields> & {
+      readonly [K in Exclude<keyof Fields, ToOptionalKeys<Fields>>]: To<
+        Fields[K]
+      >
+    } & { readonly [K in ToOptionalKeys<Fields>]?: To<Fields[K]> }
+  >
+> => {
+  const schema = transformResult(
+    from(base.structSchema()),
     struct({
       ...base.fields,
       ...fields,
@@ -269,29 +315,10 @@ export const SchemaClassTransform = <
     decode,
     encode,
   )
-  const validater = validate(schema_)
-
-  const fn = function (this: any, props: unknown) {
-    Object.assign(this, validater(props))
+  const fn = make(schema, Data.Class.prototype)
+  fn.fields = {
+    ...base.fields,
+    ...fields,
   }
-  Object.setPrototypeOf(fn.prototype, base.prototype)
-  fn.structSchema = function structSchema() {
-    return schema_
-  }
-  fn.schema = function schema(this: any) {
-    return transform(
-      schema_,
-      instanceOf(this),
-      (_) => Object.setPrototypeOf(_, this.prototype),
-      (_) => Object.setPrototypeOf(_, Object.prototype),
-    )
-  }
-  fn.prototype.copyWith = function copyWith(this: any, props: any) {
-    return new (this.constructor as any)({
-      ...this,
-      ...props,
-    })
-  }
-
-  return fn as any
+  return fn
 }

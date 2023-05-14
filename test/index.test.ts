@@ -4,8 +4,10 @@ import {
   SchemaClass,
   SchemaClassExtends,
   SchemaClassTransform,
+  SchemaClassTransformFrom,
 } from "effect-schema-class"
 import * as PR from "@effect/schema/ParseResult"
+import { isSome, some } from "@effect/data/Option"
 
 class Person extends SchemaClass({
   id: S.number,
@@ -30,7 +32,18 @@ class PersonWithNick extends SchemaClassExtends(PersonWithAge, {
 
 class PersonWithTransform extends SchemaClassTransform(
   Person,
-  { thing: S.struct({ id: S.number }) },
+  { thing: S.optional(S.struct({ id: S.number })).toOption() },
+  (input) =>
+    PR.success({
+      ...input,
+      thing: some({ id: 123 }),
+    }),
+  PR.success,
+) {}
+
+class PersonWithTransformFrom extends SchemaClassTransformFrom(
+  Person,
+  { thing: S.optional(S.struct({ id: S.number })).toOption() },
   (input) =>
     PR.success({
       ...input,
@@ -106,6 +119,17 @@ describe("SchemaClass", () => {
     })
     assert(person.id === 1)
     assert(person.name === "John")
-    assert(person.thing.id === 123)
+    assert(isSome(person.thing) && person.thing.value.id === 123)
+  })
+
+  it("transform from", () => {
+    const decode = S.decode(PersonWithTransformFrom.schema())
+    const person = decode({
+      id: 1,
+      name: "John",
+    })
+    assert(person.id === 1)
+    assert(person.name === "John")
+    assert(isSome(person.thing) && person.thing.value.id === 123)
   })
 })
