@@ -27,7 +27,8 @@ import type { ParseResult } from "@effect/schema/ParseResult"
  * @since 1.0.0
  */
 export interface CopyWith<A> {
-  copyWith<T>(this: T, props: Partial<A>): T
+  copy<T>(this: T, props: Partial<A>): T
+  unsafeCopy<T>(this: T, props: Partial<A>): T
 }
 
 /**
@@ -74,7 +75,7 @@ export interface SchemaClassExtends<C extends SchemaClass<any, any>, I, A> {
   new (props: A): A &
     CopyWith<A> &
     Data.Case &
-    Omit<InstanceType<C>, "copyWith" | keyof A>
+    Omit<InstanceType<C>, keyof CopyWith<unknown> | keyof A>
 
   unsafe<T extends new (...args: any) => any>(
     this: T,
@@ -98,7 +99,7 @@ export interface SchemaClassTransform<C extends SchemaClass<any, any>, I, A> {
   new (props: A): A &
     CopyWith<A> &
     Data.Case &
-    Omit<InstanceType<C>, "copyWith" | keyof A>
+    Omit<InstanceType<C>, keyof CopyWith<unknown> | keyof A>
 
   unsafe<T extends new (...args: any) => any>(
     this: T,
@@ -132,8 +133,14 @@ const make = <I, A>(schema_: Schema<I, A>, base: any) => {
       (input) => ({ ...(input as any) }),
     )
   }
-  fn.prototype.copyWith = function copyWith(this: any, props: any) {
+  fn.prototype.copy = function copy(this: any, props: any) {
     return new (this.constructor as any)({
+      ...this,
+      ...props,
+    })
+  }
+  fn.prototype.unsafeCopy = function unsafeCopy(this: any, props: any) {
+    return (this.constructor as any).unsafe({
       ...this,
       ...props,
     })

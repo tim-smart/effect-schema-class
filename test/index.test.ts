@@ -104,9 +104,16 @@ describe("SchemaClass", () => {
     assert(personAge instanceof Data.Class)
   })
 
-  it("copyWith", () => {
+  it("copy", () => {
     const person = new Person({ id: 1, name: "John" })
-    const joe = person.copyWith({ name: "Joe" })
+    const joe = person.copy({ name: "Joe" })
+    assert(joe.id === 1)
+    assert(joe.name === "Joe")
+  })
+
+  it("unsafeCopy", () => {
+    const person = new Person({ id: 1, name: "John" })
+    const joe = person.unsafeCopy({ name: "Joe" })
     assert(joe.id === 1)
     assert(joe.name === "Joe")
   })
