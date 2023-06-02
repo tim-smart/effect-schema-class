@@ -13,27 +13,19 @@ Added in v1.0.0
 <h2 class="text-delta">Table of contents</h2>
 
 - [constructor](#constructor)
-  - [RawSchemaClass](#rawschemaclass)
   - [SchemaClass](#schemaclass)
   - [SchemaClassExtends](#schemaclassextends)
+  - [SchemaClassTransform](#schemaclasstransform)
+  - [SchemaClassTransformFrom](#schemaclasstransformfrom)
 - [model](#model)
   - [CopyWith (interface)](#copywith-interface)
   - [SchemaClass (interface)](#schemaclass-interface)
   - [SchemaClassExtends (interface)](#schemaclassextends-interface)
+  - [SchemaClassTransform (interface)](#schemaclasstransform-interface)
 
 ---
 
 # constructor
-
-## RawSchemaClass
-
-**Signature**
-
-```ts
-export declare const RawSchemaClass: <I, A extends Record<string, any>>(schema_: Schema<I, A>) => SchemaClass<I, A>
-```
-
-Added in v1.0.0
 
 ## SchemaClass
 
@@ -42,7 +34,7 @@ Added in v1.0.0
 ```ts
 export declare const SchemaClass: <
   Fields extends Record<
-    string | number | symbol,
+    PropertyKey,
     | Schema<any, any>
     | Schema<never, never>
     | PropertySignature<any, boolean, any, boolean>
@@ -74,7 +66,7 @@ Added in v1.0.0
 export declare const SchemaClassExtends: <
   Base extends SchemaClass<any, any>,
   Fields extends Record<
-    string | number | symbol,
+    PropertyKey,
     | Schema<any, any>
     | Schema<never, never>
     | PropertySignature<any, boolean, any, boolean>
@@ -86,12 +78,96 @@ export declare const SchemaClassExtends: <
 ) => SchemaClassExtends<
   Base,
   Spread<
-    (Base extends SchemaClass<infer I, infer _A> ? I : never) & {
+    Omit<SchemaClass.From<Base>, keyof Fields> & {
       readonly [K in Exclude<keyof Fields, FromOptionalKeys<Fields>>]: From<Fields[K]>
     } & { readonly [K in FromOptionalKeys<Fields>]?: From<Fields[K]> | undefined }
   >,
   Spread<
-    (Base extends SchemaClass<infer _I, infer A> ? A : never) & {
+    Omit<SchemaClass.To<Base>, keyof Fields> & {
+      readonly [K in Exclude<keyof Fields, ToOptionalKeys<Fields>>]: To<Fields[K]>
+    } & { readonly [K in ToOptionalKeys<Fields>]?: To<Fields[K]> | undefined }
+  >
+>
+```
+
+Added in v1.0.0
+
+## SchemaClassTransform
+
+**Signature**
+
+```ts
+export declare const SchemaClassTransform: <
+  Base extends SchemaClass<any, any>,
+  Fields extends Record<
+    PropertyKey,
+    | Schema<any, any>
+    | Schema<never, never>
+    | PropertySignature<any, boolean, any, boolean>
+    | PropertySignature<never, boolean, never, boolean>
+  >
+>(
+  base: Base,
+  fields: Fields,
+  decode: (
+    input: SchemaClass.To<Base>
+  ) => ParseResult<
+    Omit<SchemaClass.To<Base>, keyof Fields> & {
+      readonly [K in Exclude<keyof Fields, ToOptionalKeys<Fields>>]: To<Fields[K]>
+    } & { readonly [K in ToOptionalKeys<Fields>]?: To<Fields[K]> | undefined }
+  >,
+  encode: (
+    input: Omit<SchemaClass.To<Base>, keyof Fields> & {
+      readonly [K in Exclude<keyof Fields, ToOptionalKeys<Fields>>]: To<Fields[K]>
+    } & { readonly [K in ToOptionalKeys<Fields>]?: To<Fields[K]> | undefined }
+  ) => ParseResult<SchemaClass.To<Base>>
+) => SchemaClassTransform<
+  Base,
+  SchemaClass.From<Base>,
+  Spread<
+    Omit<SchemaClass.To<Base>, keyof Fields> & {
+      readonly [K in Exclude<keyof Fields, ToOptionalKeys<Fields>>]: To<Fields[K]>
+    } & { readonly [K in ToOptionalKeys<Fields>]?: To<Fields[K]> | undefined }
+  >
+>
+```
+
+Added in v1.0.0
+
+## SchemaClassTransformFrom
+
+**Signature**
+
+```ts
+export declare const SchemaClassTransformFrom: <
+  Base extends SchemaClass<any, any>,
+  Fields extends Record<
+    PropertyKey,
+    | Schema<any, any>
+    | Schema<never, never>
+    | PropertySignature<any, boolean, any, boolean>
+    | PropertySignature<never, boolean, never, boolean>
+  >
+>(
+  base: Base,
+  fields: Fields,
+  decode: (
+    input: SchemaClass.From<Base>
+  ) => ParseResult<
+    Omit<SchemaClass.From<Base>, keyof Fields> & {
+      readonly [K in Exclude<keyof Fields, FromOptionalKeys<Fields>>]: From<Fields[K]>
+    } & { readonly [K in FromOptionalKeys<Fields>]?: From<Fields[K]> | undefined }
+  >,
+  encode: (
+    input: Omit<SchemaClass.From<Base>, keyof Fields> & {
+      readonly [K in Exclude<keyof Fields, FromOptionalKeys<Fields>>]: From<Fields[K]>
+    } & { readonly [K in FromOptionalKeys<Fields>]?: From<Fields[K]> | undefined }
+  ) => ParseResult<SchemaClass.From<Base>>
+) => SchemaClassTransform<
+  Base,
+  SchemaClass.From<Base>,
+  Spread<
+    Omit<SchemaClass.To<Base>, keyof Fields> & {
       readonly [K in Exclude<keyof Fields, ToOptionalKeys<Fields>>]: To<Fields[K]>
     } & { readonly [K in ToOptionalKeys<Fields>]?: To<Fields[K]> | undefined }
   >
@@ -108,7 +184,8 @@ Added in v1.0.0
 
 ```ts
 export interface CopyWith<A> {
-  copyWith<T>(this: T, props: Partial<A>): T
+  copy<T>(this: T, props: Partial<A>): T
+  unsafeCopy<T>(this: T, props: Partial<A>): T
 }
 ```
 
@@ -122,9 +199,13 @@ Added in v1.0.0
 export interface SchemaClass<I, A> {
   new (props: A): A & CopyWith<A> & Data.Case
 
+  unsafe<T extends new (...args: any) => any>(this: T, props: A): InstanceType<T>
+
   schema<T extends new (...args: any) => any>(this: T): Schema<I, InstanceType<T>>
 
   structSchema(): Schema<I, A>
+
+  readonly fields: Record<string, Schema<I, A>>
 }
 ```
 
@@ -136,7 +217,29 @@ Added in v1.0.0
 
 ```ts
 export interface SchemaClassExtends<C extends SchemaClass<any, any>, I, A> {
-  new (props: A): A & CopyWith<A> & Data.Case & Omit<InstanceType<C>, 'copyWith'>
+  new (props: A): A & CopyWith<A> & Data.Case & Omit<InstanceType<C>, keyof CopyWith<unknown> | keyof A>
+
+  unsafe<T extends new (...args: any) => any>(this: T, props: A): InstanceType<T>
+
+  schema<T extends new (...args: any) => any>(this: T): Schema<I, InstanceType<T>>
+
+  structSchema(): Schema<I, A>
+
+  readonly fields: Record<string, Schema<I, A>>
+}
+```
+
+Added in v1.0.0
+
+## SchemaClassTransform (interface)
+
+**Signature**
+
+```ts
+export interface SchemaClassTransform<C extends SchemaClass<any, any>, I, A> {
+  new (props: A): A & CopyWith<A> & Data.Case & Omit<InstanceType<C>, keyof CopyWith<unknown> | keyof A>
+
+  unsafe<T extends new (...args: any) => any>(this: T, props: A): InstanceType<T>
 
   schema<T extends new (...args: any) => any>(this: T): Schema<I, InstanceType<T>>
 
