@@ -1,5 +1,11 @@
 # effect-schema-class
 
+## 0.3.0
+
+### Minor Changes
+
+- [`7b11803`](https://github.com/tim-smart/effect-schema-class/commit/7b1180341853613d719c9cfe78acbeb24aa3240e) Thanks [@tim-smart](https://github.com/tim-smart)! - rename copyWith to copy, and add unsafeCopy
+
 ## 0.2.4
 
 ### Patch Changes
