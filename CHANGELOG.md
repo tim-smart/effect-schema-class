@@ -1,5 +1,11 @@
 # effect-schema-class
 
+## 0.4.0
+
+### Minor Changes
+
+- [`f4e54fb`](https://github.com/tim-smart/effect-schema-class/commit/f4e54fbb3c2550fbdae7a76e4c0dc7e61d41147f) Thanks [@tim-smart](https://github.com/tim-smart)! - update deps
+
 ## 0.3.0
 
 ### Minor Changes
