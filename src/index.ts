@@ -18,7 +18,7 @@ import {
   struct,
   transform,
   transformResult,
-  validate,
+  validateSync,
 } from "@effect/schema/Schema"
 import type { ParseResult } from "@effect/schema/ParseResult"
 
@@ -72,7 +72,9 @@ export namespace SchemaClass {
  * @since 1.0.0
  */
 export interface SchemaClassExtends<C extends SchemaClass<any, any>, I, A> {
-  new (props: A): A &
+  new (
+    props: A,
+  ): A &
     CopyWith<A> &
     Data.Case &
     Omit<InstanceType<C>, keyof CopyWith<unknown> | keyof A>
@@ -96,7 +98,9 @@ export interface SchemaClassExtends<C extends SchemaClass<any, any>, I, A> {
  * @since 1.0.0
  */
 export interface SchemaClassTransform<C extends SchemaClass<any, any>, I, A> {
-  new (props: A): A &
+  new (
+    props: A,
+  ): A &
     CopyWith<A> &
     Data.Case &
     Omit<InstanceType<C>, keyof CopyWith<unknown> | keyof A>
@@ -114,7 +118,7 @@ export interface SchemaClassTransform<C extends SchemaClass<any, any>, I, A> {
 }
 
 const make = <I, A>(schema_: Schema<I, A>, base: any) => {
-  const validater = validate(schema_)
+  const validater = validateSync(schema_)
   const fn = function (this: any, props: unknown) {
     Object.assign(this, validater(props))
   }

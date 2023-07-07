@@ -60,12 +60,12 @@ describe("SchemaClass", () => {
   })
 
   it("schema", () => {
-    const person = S.parse(Person.schema())({ id: 1, name: "John" })
+    const person = S.parseSync(Person.schema())({ id: 1, name: "John" })
     assert(person.name === "John")
   })
 
   it("extends", () => {
-    const person = S.parse(PersonWithAge.schema())({
+    const person = S.parseSync(PersonWithAge.schema())({
       id: 1,
       name: "John",
       age: 30,
@@ -77,7 +77,7 @@ describe("SchemaClass", () => {
   })
 
   it("extends extends", () => {
-    const person = S.parse(PersonWithNick.schema())({
+    const person = S.parseSync(PersonWithNick.schema())({
       id: 1,
       name: "John",
       age: 30,
@@ -89,7 +89,7 @@ describe("SchemaClass", () => {
 
   it("extends error", () => {
     expect(() =>
-      S.parse(PersonWithAge.schema())({ id: 1, name: "John" }),
+      S.parseSync(PersonWithAge.schema())({ id: 1, name: "John" }),
     ).toThrowError(
       new Error(`error(s) found
 └─ ["age"]
@@ -119,7 +119,7 @@ describe("SchemaClass", () => {
   })
 
   it("transform", () => {
-    const decode = S.decode(PersonWithTransform.schema())
+    const decode = S.decodeSync(PersonWithTransform.schema())
     const person = decode({
       id: 1,
       name: "John",
@@ -130,7 +130,7 @@ describe("SchemaClass", () => {
   })
 
   it("transform from", () => {
-    const decode = S.decode(PersonWithTransformFrom.schema())
+    const decode = S.decodeSync(PersonWithTransformFrom.schema())
     const person = decode({
       id: 1,
       name: "John",
