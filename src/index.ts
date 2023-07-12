@@ -144,10 +144,13 @@ const make = <I, A>(schema_: Schema<I, A>, base: any) => {
     })
   }
   fn.prototype.unsafeCopy = function unsafeCopy(this: any, props: any) {
-    return (this.constructor as any).unsafe({
-      ...this,
-      ...props,
-    })
+    return Object.setPrototypeOf(
+      {
+        ...this,
+        ...props,
+      },
+      this.constructor.prototype,
+    )
   }
 
   return fn as any
