@@ -1,5 +1,11 @@
 # effect-schema-class
 
+## 0.6.1
+
+### Patch Changes
+
+- [`574d2c4`](https://github.com/tim-smart/effect-schema-class/commit/574d2c40cfa2066c2de25da34d238d124a9f87d1) Thanks [@tim-smart](https://github.com/tim-smart)! - use Object.assign/create
+
 ## 0.6.0
 
 ### Minor Changes
