@@ -122,9 +122,9 @@ const make = <I, A>(schema_: Schema<I, A>, base: any) => {
   const fn = function (this: any, props: unknown) {
     Object.assign(this, validater(props))
   }
-  Object.setPrototypeOf(fn.prototype, base)
+  fn.prototype = Object.create(base)
   fn.unsafe = function unsafe(this: any, props: unknown) {
-    return Object.setPrototypeOf({ ...(props as any) }, this.prototype)
+    return Object.assign(Object.create(this.prototype), props)
   }
   fn.structSchema = function structSchema() {
     return schema_
@@ -133,7 +133,7 @@ const make = <I, A>(schema_: Schema<I, A>, base: any) => {
     return transform(
       schema_,
       instanceOf(this),
-      (input) => Object.setPrototypeOf({ ...(input as any) }, this.prototype),
+      (input) => Object.assign(Object.create(this.prototype), input),
       (input) => ({ ...(input as any) }),
     )
   }
