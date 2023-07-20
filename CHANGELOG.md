@@ -1,5 +1,11 @@
 # effect-schema-class
 
+## 0.10.0
+
+### Minor Changes
+
+- [`1bdec07`](https://github.com/tim-smart/effect-schema-class/commit/1bdec07891b641c7b575cbf0b1286d2a0fe91f40) Thanks [@tim-smart](https://github.com/tim-smart)! - update /schema
+
 ## 0.9.0
 
 ### Minor Changes
