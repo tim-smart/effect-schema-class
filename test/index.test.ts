@@ -1,4 +1,7 @@
 import * as Data from "@effect/data/Data"
+import { isSome, some } from "@effect/data/Option"
+import * as Effect from "@effect/io/Effect"
+import * as PR from "@effect/schema/ParseResult"
 import * as S from "@effect/schema/Schema"
 import {
   SchemaClass,
@@ -6,8 +9,6 @@ import {
   SchemaClassTransform,
   SchemaClassTransformFrom,
 } from "effect-schema-class"
-import * as PR from "@effect/schema/ParseResult"
-import { isSome, some } from "@effect/data/Option"
 
 class Person extends SchemaClass({
   id: S.number,
@@ -142,6 +143,12 @@ describe("SchemaClass", () => {
 
   it("unsafe", () => {
     const person = Person.unsafe({ id: 1, name: "John" })
+    assert(person.id === 1)
+    assert(person.name === "John")
+  })
+
+  it("effect", () => {
+    const person = Effect.runSync(Person.effect({ id: 1, name: "John" }))
     assert(person.id === 1)
     assert(person.name === "John")
   })

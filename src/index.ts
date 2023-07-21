@@ -2,6 +2,8 @@
  * @since 1.0.0
  */
 import * as Data from "@effect/data/Data"
+import * as Effect from "@effect/io/Effect"
+import type { ParseError, ParseResult } from "@effect/schema/ParseResult"
 import type {
   From,
   FromOptionalKeys,
@@ -13,14 +15,14 @@ import type {
 } from "@effect/schema/Schema"
 import {
   from,
-  to,
   instanceOf,
   struct,
+  to,
   transform,
   transformResult,
+  validate,
   validateSync,
 } from "@effect/schema/Schema"
-import type { ParseResult } from "@effect/schema/ParseResult"
 
 /**
  * @category model
@@ -37,6 +39,11 @@ export interface CopyWith<A> {
  */
 export interface SchemaClass<I, A> {
   new (props: A): A & CopyWith<A> & Data.Case
+
+  effect<T extends new (...args: any) => any>(
+    this: T,
+    props: A,
+  ): Effect.Effect<never, ParseError, InstanceType<T>>
 
   unsafe<T extends new (...args: any) => any>(
     this: T,
@@ -79,6 +86,11 @@ export interface SchemaClassExtends<C extends SchemaClass<any, any>, I, A> {
     Data.Case &
     Omit<InstanceType<C>, keyof CopyWith<unknown> | keyof A>
 
+  effect<T extends new (...args: any) => any>(
+    this: T,
+    props: A,
+  ): Effect.Effect<never, ParseError, InstanceType<T>>
+
   unsafe<T extends new (...args: any) => any>(
     this: T,
     props: A,
@@ -119,12 +131,19 @@ export interface SchemaClassTransform<C extends SchemaClass<any, any>, I, A> {
 
 const make = <I, A>(schema_: Schema<I, A>, base: any) => {
   const validater = validateSync(schema_)
+  const validateEffect = validate(schema_)
+
   const fn = function (this: any, props: unknown) {
     Object.assign(this, validater(props))
   }
   fn.prototype = Object.create(base)
-  fn.unsafe = function unsafe(this: any, props: unknown) {
-    return Object.assign(Object.create(this.prototype), props)
+  fn.effect = function effect(props: unknown) {
+    return Effect.map(validateEffect(props), (props) =>
+      Object.setPrototypeOf(props, this.prototype),
+    )
+  }
+  fn.unsafe = function unsafe(props: unknown) {
+    return Object.assign(Object.create(fn.prototype), props)
   }
   fn.structSchema = function structSchema() {
     return schema_

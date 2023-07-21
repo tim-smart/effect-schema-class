@@ -199,6 +199,8 @@ Added in v1.0.0
 export interface SchemaClass<I, A> {
   new (props: A): A & CopyWith<A> & Data.Case
 
+  effect<T extends new (...args: any) => any>(this: T, props: A): Effect.Effect<never, ParseError, InstanceType<T>>
+
   unsafe<T extends new (...args: any) => any>(this: T, props: A): InstanceType<T>
 
   schema<T extends new (...args: any) => any>(this: T): Schema<I, InstanceType<T>>
@@ -218,6 +220,8 @@ Added in v1.0.0
 ```ts
 export interface SchemaClassExtends<C extends SchemaClass<any, any>, I, A> {
   new (props: A): A & CopyWith<A> & Data.Case & Omit<InstanceType<C>, keyof CopyWith<unknown> | keyof A>
+
+  effect<T extends new (...args: any) => any>(this: T, props: A): Effect.Effect<never, ParseError, InstanceType<T>>
 
   unsafe<T extends new (...args: any) => any>(this: T, props: A): InstanceType<T>
 
