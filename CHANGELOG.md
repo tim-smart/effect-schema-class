@@ -1,5 +1,11 @@
 # effect-schema-class
 
+## 0.10.2
+
+### Patch Changes
+
+- [`071ca2e`](https://github.com/tim-smart/effect-schema-class/commit/071ca2efed83207dc70d4a63d200ee698e9a0f3c) Thanks [@tim-smart](https://github.com/tim-smart)! - fix unsafe constructor
+
 ## 0.10.1
 
 ### Patch Changes
