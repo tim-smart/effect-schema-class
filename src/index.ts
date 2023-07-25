@@ -143,7 +143,7 @@ const make = <I, A>(schema_: Schema<I, A>, base: any) => {
     )
   }
   fn.unsafe = function unsafe(props: unknown) {
-    return Object.assign(Object.create(fn.prototype), props)
+    return Object.assign(Object.create(this.prototype), props)
   }
   fn.structSchema = function structSchema() {
     return schema_
