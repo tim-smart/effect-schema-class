@@ -8,7 +8,7 @@ export default defineConfig({
     exclude: ["./src/index.ts"],
     globals: true,
     coverage: {
-      provider: "c8",
+      provider: "v8",
     },
   },
   resolve: {

@@ -4,7 +4,7 @@ module.exports = {
   parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaVersion: 2018,
-    sourceType: "module"
+    sourceType: "module",
   },
   settings: {
     "import/parsers": {
@@ -20,7 +20,7 @@ module.exports = {
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
-    "prettier",
+    "plugin:@effect/recommended",
   ],
   plugins: [
     "deprecation",
@@ -73,5 +73,17 @@ module.exports = {
     "@typescript-eslint/no-array-constructor": "off",
     "@typescript-eslint/no-use-before-define": "off",
     "@typescript-eslint/no-namespace": "off",
+    "@effect/dprint": [
+      "error",
+      {
+        config: {
+          indentWidth: 2,
+          lineWidth: 80,
+          semiColons: "asi",
+          quoteStyle: "alwaysDouble",
+          "arrowFunction.useParentheses": "preferNone",
+        },
+      },
+    ],
   },
 }

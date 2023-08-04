@@ -34,7 +34,7 @@ class PersonWithNick extends SchemaClassExtends(PersonWithAge, {
 class PersonWithTransform extends SchemaClassTransform(
   Person,
   { thing: S.optional(S.struct({ id: S.number })).toOption() },
-  (input) =>
+  input =>
     PR.success({
       ...input,
       thing: some({ id: 123 }),
@@ -45,7 +45,7 @@ class PersonWithTransform extends SchemaClassTransform(
 class PersonWithTransformFrom extends SchemaClassTransformFrom(
   Person,
   { thing: S.optional(S.struct({ id: S.number })).toOption() },
-  (input) =>
+  input =>
     PR.success({
       ...input,
       thing: { id: 123 },
@@ -89,13 +89,12 @@ describe("SchemaClass", () => {
   })
 
   it("extends error", () => {
-    expect(() =>
-      S.parseSync(PersonWithAge.schema())({ id: 1, name: "John" }),
-    ).toThrowError(
-      new Error(`error(s) found
+    expect(() => S.parseSync(PersonWithAge.schema())({ id: 1, name: "John" }))
+      .toThrowError(
+        new Error(`error(s) found
 └─ ["age"]
    └─ is missing`),
-    )
+      )
   })
 
   it("Data.Class", () => {

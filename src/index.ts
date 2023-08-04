@@ -38,19 +38,19 @@ export interface CopyWith<A> {
  * @since 1.0.0
  */
 export interface SchemaClass<I, A> {
-  new (props: A): A & CopyWith<A> & Data.Case
+  new(props: A): A & CopyWith<A> & Data.Case
 
-  effect<T extends new (...args: any) => any>(
+  effect<T extends new(...args: any) => any>(
     this: T,
     props: A,
   ): Effect.Effect<never, ParseError, InstanceType<T>>
 
-  unsafe<T extends new (...args: any) => any>(
+  unsafe<T extends new(...args: any) => any>(
     this: T,
     props: A,
   ): InstanceType<T>
 
-  schema<T extends new (...args: any) => any>(
+  schema<T extends new(...args: any) => any>(
     this: T,
   ): Schema<I, InstanceType<T>>
 
@@ -79,24 +79,25 @@ export namespace SchemaClass {
  * @since 1.0.0
  */
 export interface SchemaClassExtends<C extends SchemaClass<any, any>, I, A> {
-  new (
+  new(
     props: A,
-  ): A &
-    CopyWith<A> &
-    Data.Case &
-    Omit<InstanceType<C>, keyof CopyWith<unknown> | keyof A>
+  ):
+    & A
+    & CopyWith<A>
+    & Data.Case
+    & Omit<InstanceType<C>, keyof CopyWith<unknown> | keyof A>
 
-  effect<T extends new (...args: any) => any>(
+  effect<T extends new(...args: any) => any>(
     this: T,
     props: A,
   ): Effect.Effect<never, ParseError, InstanceType<T>>
 
-  unsafe<T extends new (...args: any) => any>(
+  unsafe<T extends new(...args: any) => any>(
     this: T,
     props: A,
   ): InstanceType<T>
 
-  schema<T extends new (...args: any) => any>(
+  schema<T extends new(...args: any) => any>(
     this: T,
   ): Schema<I, InstanceType<T>>
 
@@ -110,19 +111,20 @@ export interface SchemaClassExtends<C extends SchemaClass<any, any>, I, A> {
  * @since 1.0.0
  */
 export interface SchemaClassTransform<C extends SchemaClass<any, any>, I, A> {
-  new (
+  new(
     props: A,
-  ): A &
-    CopyWith<A> &
-    Data.Case &
-    Omit<InstanceType<C>, keyof CopyWith<unknown> | keyof A>
+  ):
+    & A
+    & CopyWith<A>
+    & Data.Case
+    & Omit<InstanceType<C>, keyof CopyWith<unknown> | keyof A>
 
-  unsafe<T extends new (...args: any) => any>(
+  unsafe<T extends new(...args: any) => any>(
     this: T,
     props: A,
   ): InstanceType<T>
 
-  schema<T extends new (...args: any) => any>(
+  schema<T extends new(...args: any) => any>(
     this: T,
   ): Schema<I, InstanceType<T>>
 
@@ -133,13 +135,14 @@ const make = <I, A>(schema_: Schema<I, A>, base: any) => {
   const validater = validateSync(schema_)
   const validateEffect = validate(schema_)
 
-  const fn = function (this: any, props: unknown) {
+  const fn = function(this: any, props: unknown) {
     Object.assign(this, validater(props))
   }
   fn.prototype = Object.create(base)
   fn.effect = function effect(props: unknown) {
-    return Effect.map(validateEffect(props), (props) =>
-      Object.setPrototypeOf(props, this.prototype),
+    return Effect.map(
+      validateEffect(props),
+      props => Object.setPrototypeOf(props, this.prototype),
     )
   }
   fn.unsafe = function unsafe(props: unknown) {
@@ -152,8 +155,8 @@ const make = <I, A>(schema_: Schema<I, A>, base: any) => {
     return transform(
       schema_,
       unknown,
-      (input) => Object.assign(Object.create(this.prototype), input),
-      (input) => ({ ...(input as any) }),
+      input => Object.assign(Object.create(this.prototype), input),
+      input => ({ ...(input as any) }),
     )
   }
   fn.prototype.copy = function copy(this: any, props: any) {
@@ -224,18 +227,22 @@ export const SchemaClassExtends = <
 ): SchemaClassExtends<
   Base,
   Spread<
-    Omit<SchemaClass.From<Base>, keyof Fields> & {
+    & Omit<SchemaClass.From<Base>, keyof Fields>
+    & {
       readonly [K in Exclude<keyof Fields, FromOptionalKeys<Fields>>]: From<
         Fields[K]
       >
-    } & { readonly [K in FromOptionalKeys<Fields>]?: From<Fields[K]> }
+    }
+    & { readonly [K in FromOptionalKeys<Fields>]?: From<Fields[K]> }
   >,
   Spread<
-    Omit<SchemaClass.To<Base>, keyof Fields> & {
+    & Omit<SchemaClass.To<Base>, keyof Fields>
+    & {
       readonly [K in Exclude<keyof Fields, ToOptionalKeys<Fields>>]: To<
         Fields[K]
       >
-    } & { readonly [K in ToOptionalKeys<Fields>]?: To<Fields[K]> }
+    }
+    & { readonly [K in ToOptionalKeys<Fields>]?: To<Fields[K]> }
   >
 > => {
   const schema = struct({
@@ -267,28 +274,35 @@ export const SchemaClassTransform = <
   base: Base,
   fields: Fields,
   decode: (input: SchemaClass.To<Base>) => ParseResult<
-    Omit<SchemaClass.To<Base>, keyof Fields> & {
+    & Omit<SchemaClass.To<Base>, keyof Fields>
+    & {
       readonly [K in Exclude<keyof Fields, ToOptionalKeys<Fields>>]: To<
         Fields[K]
       >
-    } & { readonly [K in ToOptionalKeys<Fields>]?: To<Fields[K]> }
+    }
+    & { readonly [K in ToOptionalKeys<Fields>]?: To<Fields[K]> }
   >,
   encode: (
-    input: Omit<SchemaClass.To<Base>, keyof Fields> & {
-      readonly [K in Exclude<keyof Fields, ToOptionalKeys<Fields>>]: To<
-        Fields[K]
-      >
-    } & { readonly [K in ToOptionalKeys<Fields>]?: To<Fields[K]> },
+    input:
+      & Omit<SchemaClass.To<Base>, keyof Fields>
+      & {
+        readonly [K in Exclude<keyof Fields, ToOptionalKeys<Fields>>]: To<
+          Fields[K]
+        >
+      }
+      & { readonly [K in ToOptionalKeys<Fields>]?: To<Fields[K]> },
   ) => ParseResult<SchemaClass.To<Base>>,
 ): SchemaClassTransform<
   Base,
   SchemaClass.From<Base>,
   Spread<
-    Omit<SchemaClass.To<Base>, keyof Fields> & {
+    & Omit<SchemaClass.To<Base>, keyof Fields>
+    & {
       readonly [K in Exclude<keyof Fields, ToOptionalKeys<Fields>>]: To<
         Fields[K]
       >
-    } & { readonly [K in ToOptionalKeys<Fields>]?: To<Fields[K]> }
+    }
+    & { readonly [K in ToOptionalKeys<Fields>]?: To<Fields[K]> }
   >
 > => {
   const schema = transformResult(
@@ -327,28 +341,35 @@ export const SchemaClassTransformFrom = <
   base: Base,
   fields: Fields,
   decode: (input: SchemaClass.From<Base>) => ParseResult<
-    Omit<SchemaClass.From<Base>, keyof Fields> & {
+    & Omit<SchemaClass.From<Base>, keyof Fields>
+    & {
       readonly [K in Exclude<keyof Fields, FromOptionalKeys<Fields>>]: From<
         Fields[K]
       >
-    } & { readonly [K in FromOptionalKeys<Fields>]?: From<Fields[K]> }
+    }
+    & { readonly [K in FromOptionalKeys<Fields>]?: From<Fields[K]> }
   >,
   encode: (
-    input: Omit<SchemaClass.From<Base>, keyof Fields> & {
-      readonly [K in Exclude<keyof Fields, FromOptionalKeys<Fields>>]: From<
-        Fields[K]
-      >
-    } & { readonly [K in FromOptionalKeys<Fields>]?: From<Fields[K]> },
+    input:
+      & Omit<SchemaClass.From<Base>, keyof Fields>
+      & {
+        readonly [K in Exclude<keyof Fields, FromOptionalKeys<Fields>>]: From<
+          Fields[K]
+        >
+      }
+      & { readonly [K in FromOptionalKeys<Fields>]?: From<Fields[K]> },
   ) => ParseResult<SchemaClass.From<Base>>,
 ): SchemaClassTransform<
   Base,
   SchemaClass.From<Base>,
   Spread<
-    Omit<SchemaClass.To<Base>, keyof Fields> & {
+    & Omit<SchemaClass.To<Base>, keyof Fields>
+    & {
       readonly [K in Exclude<keyof Fields, ToOptionalKeys<Fields>>]: To<
         Fields[K]
       >
-    } & { readonly [K in ToOptionalKeys<Fields>]?: To<Fields[K]> }
+    }
+    & { readonly [K in ToOptionalKeys<Fields>]?: To<Fields[K]> }
   >
 > => {
   const schema = transformResult(
