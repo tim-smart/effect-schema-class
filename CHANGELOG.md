@@ -1,5 +1,15 @@
 # effect-schema-class
 
+## 0.13.0
+
+### Minor Changes
+
+- [`53e2a8a`](https://github.com/tim-smart/effect-schema-class/commit/53e2a8a83185ad91822eca7af0872046b72163e5) Thanks [@tim-smart](https://github.com/tim-smart)! - update dependencies
+
+### Patch Changes
+
+- [`4aff27a`](https://github.com/tim-smart/effect-schema-class/commit/4aff27a3e5ee5850d227ca91ee7ef90990b48e3c) Thanks [@tim-smart](https://github.com/tim-smart)! - fix for structural equivilence
+
 ## 0.12.0
 
 ### Minor Changes
