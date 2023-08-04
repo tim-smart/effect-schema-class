@@ -15,11 +15,11 @@ import type {
 } from "@effect/schema/Schema"
 import {
   from,
-  instanceOf,
   struct,
   to,
   transform,
   transformResult,
+  unknown,
   validate,
   validateSync,
 } from "@effect/schema/Schema"
@@ -151,7 +151,7 @@ const make = <I, A>(schema_: Schema<I, A>, base: any) => {
   fn.schema = function schema(this: any) {
     return transform(
       schema_,
-      instanceOf(this),
+      unknown,
       (input) => Object.assign(Object.create(this.prototype), input),
       (input) => ({ ...(input as any) }),
     )
@@ -163,13 +163,7 @@ const make = <I, A>(schema_: Schema<I, A>, base: any) => {
     })
   }
   fn.prototype.unsafeCopy = function unsafeCopy(this: any, props: any) {
-    return Object.setPrototypeOf(
-      {
-        ...this,
-        ...props,
-      },
-      this.constructor.prototype,
-    )
+    return Object.assign(Object.create(this.constructor.prototype), this, props)
   }
 
   return fn as any
