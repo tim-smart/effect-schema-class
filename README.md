@@ -1,4 +1,6 @@
-# effect-schema-class
+# effect-schema-class - Depreciated
+
+## @effect/schema now has classes
 
 The power of @effect/schema and classes combined!
 
